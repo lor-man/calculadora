@@ -5,7 +5,7 @@ print("Boletos aerolinea")
 def postgres_insert(nombre,vuelo,clss1,clss2,clss3,subTotal,descuento,total):
     conexion=None
     try:
-        conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="172.25.16.1",port="5432")
+        conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="192.168.1.74",port="5432")
         cursor=conexion.cursor()
         cursor.execute("""INSERT INTO public."boletosAerolinea"("ID", nombre, "claseVuelo", "
         cantClase1", "cantClase2", "cantClase3", subtotal, descuento, total)
@@ -22,7 +22,7 @@ def postgres_insert(nombre,vuelo,clss1,clss2,clss3,subTotal,descuento,total):
 def postgres_select():
     conexion=None
     try:
-        conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="172.25.16.1",port="5432")
+        conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="192.168.1.74",port="5432")
         cursor=conexion.cursor()
         cursor.execute("""SELECT * FROM public."boletosAerolinea" ORDER BY "ID" ASC""")
         datos=cursor.fetchall()
@@ -50,7 +50,7 @@ def postgres_select():
 def postgres_delet(id):
     conexion=None
     try:
-        conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="172.25.16.1",port="5432")
+        conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="192.168.1.74",port="5432")
         cursor=conexion.cursor()
         cursor.execute("""DELETE FROM public."boletosAerolinea" WHERE "ID"=%(id)s;""",{'id':id})
         conexion.commit()
