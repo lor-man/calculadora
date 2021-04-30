@@ -1,4 +1,4 @@
-from tkinter import Tk,Frame,StringVar,Entry,Button,Label,Spinbox,messagebox,Text,Scrollbar
+from tkinter import Tk,Frame,StringVar,Entry,Button,Label,Spinbox,messagebox,Text,Scrollbar,INSERT,END
 from tkinter import ttk
 import psycopg2 as ps
 
@@ -18,7 +18,6 @@ class aerolinea(Frame):
         self.frame_3.grid(row=1,column=2,rowspan=6)
         self.frame_4=Frame(self.master)  #Entrada de nombre y seleccion de clase
         self.frame_4.grid(row=3,column=1)
-        self.datos=None
         self.tableVar=StringVar()
         self.subTotal=StringVar()
         self.desc=StringVar()
@@ -43,22 +42,18 @@ class aerolinea(Frame):
         self.button()
         self.entry()
         self.combobox()
-        self.text()
+#        self.text()
         self.subTotal.set("0")
         self.nombreVar.set("")
         self.desc.set("0")
         self.toTal.set("0")
         self.tableVar.set("columna 1 /n columna 2  ")
-        
-    
-    def text(self):
         self.text_0=Text(self.frame_3)
         self.text_0.grid(row=1,column=1)
         self.scrollvertical = Scrollbar(self.frame_3,command=self.text_0.yview)
         self.scrollvertical.grid(row=1,column=2,sticky="nsew")
         self.text_0.config(yscrollcommand=self.scrollvertical.set)
-        self.text_0.insert("prueba")
-
+#        self.text_0.insert(INSERT,"prueba\n")
 
     def label(self):
         #------Cuadro de precios-------------------------------------
@@ -122,7 +117,7 @@ class aerolinea(Frame):
     def button(self):
         self.button_0=Button(self.frame_2,text="Limpiar",command=self.limpiar).grid(row=1,column=1)
         self.button_1=Button(self.frame_2,text="Salir",command=self.master.destroy).grid(row=1,column=2)
-        self.button_2=Button(self.frame_2,text="Reporte").grid(row=1,column=3)
+        self.button_2=Button(self.frame_2,text="Reporte",command=self.postgres_select).grid(row=1,column=3)
         self.button_3=Button(self.frame_2,text="Calcular",command=self.calc).grid(row=1,column=4)    
 
     def entry(self):
@@ -151,6 +146,7 @@ class aerolinea(Frame):
         self.toTal.set("0")   #Total
         #
         self.clssVuelo.set("")
+        self.text_0.delete(1.0,END)
     
     def postgres_insert(self,nombre,vuelo,clss1,clss2,clss3,subTotal,descuento,total):
         conexion=None
@@ -169,27 +165,29 @@ class aerolinea(Frame):
                 conexion.close()
 
     def postgres_select(self):
+        self.text_0.delete(1.0,END)
         conexion=None
         try:
             conexion=ps.connect(database="Parcial2",user="postgres",password="123456",host="192.168.1.74",port="5432")
             cursor=conexion.cursor()
-            cursor.execute("""SELECT  FROM public."boletosAerolinea" ORDER BY "ID" ASC""")
-            self.datos=cursor.fetchall()
+            cursor.execute("""SELECT "ID","nombre",subtotal,descuento,total  FROM public."boletosAerolinea" ORDER BY "ID" ASC""")
+            datos=cursor.fetchall()
             print("-------------------------------Registro-----------------------------")
             for fila in datos:
                 print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
                 print("ID: ",fila[0])
                 print("Nombre: ",fila[1])
-                print("Clase de vuelo: ",fila[2])
-                print("Cant. servicios 1era clase: ",fila[3])
-                print("Cant. servicios 1era clase: ",fila[4])
-                print("Cant. servicios 1era clase: ",fila[5])
-                print("Subtotal: ",fila[6])
-                print("Descuento: ",fila[7])
-                print("Total: ",fila[8])
+                print("Subtotal: ",fila[2])
+                print("Descuento: ",fila[3])
+                print("Total: ",fila[4])
                 print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
                 cursor.close()
                 print("--------------------------------------------------------------------")
+        #Parte de Tkinter
+            self.text_0.insert(INSERT,"ID\tNOMBRE\tSUBTOTAL\tDESCUENTO\tTOTAL\n")
+            for fila in datos:
+                self.text_0.insert(INSERT,"_______________________________________________________________________\n")
+                self.text_0.insert(INSERT,"{}\t{}\t{}\t{}\t{}\n".format(fila[0],fila[1],fila[2],fila[3],fila[4]))
         except (Exception, ps.Error) as error:
             print("Error al obtener datos ", error)
         finally:
